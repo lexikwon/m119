@@ -6,6 +6,10 @@
   by Alexandra Kwon (UID: 205290932) for ECE M119
 */
 
+//What: Controlling built-in LED through bluetooth
+//Where: https://docs.arduino.cc/tutorials/nano-33-iot/bluetooth
+//Why: Offers a comprehensive tutorial on how to connect the Nano 33 via bluetooth to be further used in future projects
+
 //Include the WiFi NINA library
 #include <WiFiNINA.h>
 //Include "secret" file with private information
