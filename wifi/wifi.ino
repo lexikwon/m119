@@ -101,5 +101,5 @@ void loop() {
   }
 
   //Delay so you can properly see the network information
-  delay(5000);
+  delay(1000);
 }

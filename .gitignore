@@ -1,2 +1,5 @@
 .DS_store
 wifi/secret.h
+node_modules
+package.json
+package-lock.json
