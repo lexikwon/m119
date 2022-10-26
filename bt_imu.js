@@ -15,6 +15,9 @@ const noble = require('@abandonware/noble');
 
 const uuid_service = "1101"
 const uuid_value = "2101"
+//Add uuids for y and z characteristics
+const uuid_value2 = "2102"
+const uuid_value3 = "2103"
 
 noble.on('stateChange', async (state) => {
   if (state === 'poweredOn') {
@@ -28,19 +31,23 @@ noble.on('discover', async (peripheral) => {
   await peripheral.connectAsync();
   const {characteristics} = await 
 peripheral.discoverSomeServicesAndCharacteristicsAsync([uuid_service], 
-[uuid_value]);
-  readData(characteristics[0])
+[uuid_value, uuid_value2, uuid_value3]); //Add in reading for the y and z characteristics
+  readData(characteristics[0],characteristics[1],characteristics[2])
 });
 
 //
 // read data periodically
 //
-let readData = async (characteristic) => {
+let readData = async (characteristic, characteristic2, characteristic3) => {
+  //Add in values for y and z characteristics
   const value = (await characteristic.readAsync());
-  console.log(value.readFloatLE(0));
+  const value2 = (await characteristic2.readAsync());
+  const value3 = (await characteristic3.readAsync());
+
+  console.log(value.readFloatLE(0), value2.readFloatLE(0), value3.readFloatLE(0));
 
   // read data again in t milliseconds
   setTimeout(() => {
-    readData(characteristic)
-  }, 10);
+    readData(characteristic, characteristic2, characteristic3)
+   }, 10);
 }
