@@ -18,6 +18,7 @@
 //Initialize the secret variables
 char ssid[] = SECRET_SSID;
 char pass[] = SECRET_PASS;
+char user[] = SECRET_USER;
 
 //Initialize more variables to store WiFi information
 //the WiFi radio's status
@@ -44,7 +45,7 @@ void setup() {
     Serial.print("Attempting to connect to network: ");
     Serial.println(ssid);
     //Connect to WPA/WPA2 netowrk;
-    status = WiFi.begin(ssid,pass);
+    status = WiFi.beginEnterprise(ssid,user,pass);
 
     //wait 10 seconds for connection
     delay(10000);
