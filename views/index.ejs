@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+</head>
+
+<body>
+
+</body>
+
+<script src="https://d3js.org/d3.v7.min.js"></script>
+
+<script type="application/javascript">
+
+/*
+ EJS File for visualization
+ Adapted from m3/views by Anthony Chen
+ by Alexandra Kwon (UID: 205290932) for ECE M119
+*/
+
+//What: m3/views
+//Where: https://github.com/ucla-hci/m119/tree/main/m3/views
+//Why: Offers a template for required project code
+
+	const SERVERADDRESS = "http://127.0.0.1:3090"
+	// use XML HTTP request to grab data from the server (central)
+	let xmlhttp = new XMLHttpRequest()
+	xmlhttp.onreadystatechange = function () {
+		if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+			let responseText = xmlhttp.responseText
+			let sensorValue = parseFloat(JSON.parse(responseText).sensorValue)
+			let sensorValue2 = parseFloat(JSON.parse(responseText).sensorValue2)
+			let sensorValue3 = parseFloat(JSON.parse(responseText).sensorValue3)
+			// use nano to visualize sensor values as the RBG web page background color
+			let colorValue = Math.max(0, Math.min((sensorValue + 1) * 100, 255))
+			let colorValue2 = Math.max(0, Math.min((sensorValue2 + 1) * 100, 255))
+			let colorValue3 = Math.max(0, Math.min((sensorValue3 + 1) * 100, 255))
+			let color = "rgba("+ colorValue +", "+ colorValue2+ ", "+colorValue3+", 1.0)"
+			console.log(color)
+			d3.select("body").style("background-color", color)
+		}
+	}
+	// periodically grab data
+	let getData = () => {
+		xmlhttp.open("POST", SERVERADDRESS, true)
+		xmlhttp.setRequestHeader("Content-type", "application/json")
+		xmlhttp.send("")
+		setTimeout(() => {
+			getData()
+		}, 10)
+	}
+	getData()
+</script>
+
+</html>

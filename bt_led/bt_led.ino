@@ -39,7 +39,7 @@ void setup() {
   }
 
   // set advertised local name and service UUID:
-  BLE.setLocalName("Nano 33 IoT");
+  BLE.setLocalName("Lexi's Nano 33 IoT");
   BLE.setAdvertisedService(ledService);
 
   // add the characteristic to the service
