@@ -32,9 +32,11 @@ BLEFloatCharacteristic accelerometerCharacteristicZ(BLE_UUID_ACCELEROMETER_Z, BL
 float x, y, z;
 
 void setup() {
-  Serial.begin(9600);
-  while (!Serial)
-    ;
+  //pinMode(LED_BUILTIN, OUTPUT);
+
+  //Serial.begin(9600);
+  //while (!Serial)
+    //;
 
   // initialize IMU
   if (!IMU.begin()) {
