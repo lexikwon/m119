@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<style>
+		* {
+			box-sizing: border-box;
+		}
+		
+		body {
+			font-family: Arial, Helvetica, sans-serif;
+		}
+		
+		/* Style the header */
+		header {
+			background-color: rgb(0, 0, 0);
+			padding: 30px;
+			text-align: center;
+			font-size: 35px;
+			color: white;
+		}
+		h1 {
+			padding: 30px;
+			text-align: center;
+			font-size: 35px;
+			opacity: 0;
+		}
+	</style>
+</head>
+
+<body>
+<header>Posture Sensor Demo</header>
+<h1> Bad Posture </h1>
+</body>
+
+<script src="https://d3js.org/d3.v7.min.js"></script>
+
+<script type="application/javascript">
+	const SERVERADDRESS = "http://127.0.0.1:3000"
+	// use XML HTTP request to grab data from the server (central)
+	let xmlhttp = new XMLHttpRequest()
+	xmlhttp.onreadystatechange = function () {
+		if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+			let responseText = xmlhttp.responseText
+			let sensorValue = parseFloat(JSON.parse(responseText).sensorValue)
+			// use d3 to visualize sensor value as the web page background color
+			let colorValue = Math.max(0, Math.min((sensorValue + 1) * 0.5, 1))
+			console.log(colorValue)
+			let color = "rgba(0, 0, 0, " + colorValue + ")"
+			if(colorValue < 0.9) {
+				d3.select("body").style("background-color", "rgb(255,105,97)")
+				d3.select("h1").style("opacity", "100")
+			} else {
+				d3.select("body").style("background-color", "rgb(119,221,119)")
+				d3.select("h1").style("opacity", "0")
+			}
+		}
+	}
+	// periodically grab data
+	let getData = () => {
+		xmlhttp.open("POST", SERVERADDRESS, true)
+		xmlhttp.setRequestHeader("Content-type", "application/json")
+		xmlhttp.send("")
+		setTimeout(() => {
+			getData()
+		}, 10)
+	}
+	getData()
+</script>
+
+</html>
