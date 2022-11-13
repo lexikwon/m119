@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+  <title>Single Player Pong Game</title>
+</head>
+
+<canvas id="gameCanvas" width="800" height="600"></canvas>
+
+<body>
+
+</body>
+
+<script src="https://d3js.org/d3.v7.min.js"></script>
+
+<script type="application/javascript">
+
+/*  EJS file for pong game
+
+  Adapted from "pong-js" by @crossphd on GitHub and m3 code
+
+  by Alexandra Kwon (UID: 205290932) for ECE M119
+
+  What: master.js
+  Where: https://github.com/crossphd/pong-js
+  Why: Helps implement the pong game basics for m4
+*/
+  var canvas;
+  var canvasContext;
+  var ballX = 50;
+  var ballY = 50;
+  var ballSpeedX = 10;
+  var ballSpeedY = 4;
+  var paddle1Y = 250;
+  var paddle2Y = 250;
+  const PADDLE_HEIGHT = 100;
+  const PADDLE_WIDTH = 10;
+  const BUFFER = 10;
+  var score = 0;
+  var highScore = 0;
+  var running = false;
+  var gameState = 0;
+
+  function calcMousePos(evt) {
+    var rect = canvas.getBoundingClientRect();
+    var root = document.documentElement;
+    //var mouseX = evt.clientX - rect.left - root.scrollLeft;
+    //var mouseY = evt.clientY - rect.top - root.scrollTop;
+
+    var mouseY = Math.max(0, Math.min((evt + 1) * 300, 600)); //- rect.top - root.scrollTop;
+
+    return {
+      //x:mouseX,
+      y:mouseY
+    };
+  }
+
+  function drawNet(){
+    for(var i = 0; i < canvas.height; i+=15){
+      colorRect(canvas.width/2-1, i, 2, 5,'gray');
+    }
+  }
+
+  function drawEverything(){
+    // black background
+    colorRect(0, 0, canvas.width, canvas.height, 'black');
+    // draws ball
+    colorCircle(ballX, ballY, 10, 'yellow');
+    // left paddle
+    colorRect(BUFFER, paddle1Y, PADDLE_WIDTH, PADDLE_HEIGHT, 'red');
+    // right paddle
+    colorRect(canvas.width - (PADDLE_WIDTH + BUFFER), ballY - (PADDLE_HEIGHT/2), PADDLE_WIDTH, PADDLE_HEIGHT, 'blue');
+     drawScore();
+     drawNet();
+    
+  }
+
+  //When any key is pressed game state is reversed
+  document.onkeypress = function(e){gameState = !gameState};
+
+  function gameReset(){
+    gameState = 0;
+    ballX = canvas.width/2;
+    ballY = canvas.height/2;
+    ballSpeedX = -ballSpeedX;
+    ballSpeedY = -ballSpeedY;
+    // black background
+    colorRect(0, 0, canvas.width, canvas.height, 'black');
+    //Display "Press Enter to Start Pong Game"
+    canvasContext.fillStyle='white';
+    canvasContext.font="20px sans-serif";
+    var text = "Press any key to Start Game";
+    canvasContext.fillText(text, canvas.width/3, canvas.height/2);
+    drawScore();
+  }
+
+  function moveEverything(){
+    ballX += ballSpeedX;
+    ballY += ballSpeedY;
+    if((ballX + 5) >= (canvas.width - BUFFER - PADDLE_WIDTH)) {
+      ballSpeedX = -ballSpeedX;
+    }
+    if((ballX - 5) <= (BUFFER + PADDLE_WIDTH)){
+      // if ball hits paddle, else reset
+      if(ballY > paddle1Y && ballY < (paddle1Y + PADDLE_HEIGHT)){
+        ballSpeedX = -ballSpeedX;
+        var deltaY = ballY - (paddle1Y+PADDLE_HEIGHT/2);
+        ballSpeedY = deltaY * 0.25;
+        score += 1;
+        ballSpeedX += .8;
+      }else{
+        gameReset();
+        if(score > highScore){
+          highScore = score;
+        }
+        score = 0;
+        ballSpeedX = 10;
+        ballSpeedY = 4;
+      }
+    }
+    if(ballY >= canvas.height) {
+      ballSpeedY = -ballSpeedY;
+    }
+    if(ballY <= 0){
+      ballSpeedY = -ballSpeedY;
+    }
+  }
+
+  function drawScore(){
+    canvasContext.lineWidth=1;
+    canvasContext.fillStyle='white';
+    // canvasContext.lineStyle="#ffff00";
+    canvasContext.font="20px sans-serif";
+    var scoretext = "Current Score: " + score.toString();
+    canvasContext.fillText(scoretext, canvas.width - 750, 40);
+    var highscoretext = "High Score: " + highScore.toString();
+    canvasContext.fillText(highscoretext, canvas.width - 200, 40);
+  }
+
+  function colorRect(leftX, topY, width, height, drawColor){
+    canvasContext.fillStyle = drawColor;
+    canvasContext.fillRect(leftX, topY, width, height)
+  }
+
+  function colorCircle(centerX, centerY, radius, color){
+    canvasContext.fillStyle = color;
+    canvasContext.beginPath();
+    canvasContext.arc(centerX, centerY, radius, 0, Math.PI*2, true);
+    canvasContext.fill();
+
+  }
+  
+
+
+
+	const SERVERADDRESS = "http://127.0.0.1:3090"
+	// use XML HTTP request to grab data from the server (central)
+  let xmlhttp = new XMLHttpRequest()
+  var prev = paddle1Y
+
+  //Reset game to start
+  window.onload = () => {
+        canvas = document.getElementById('gameCanvas');
+        canvasContext = canvas.getContext('2d');
+        var framesPerSecond = 40;
+        setInterval(function(){
+          if (gameState){
+          moveEverything();
+          drawEverything();
+          }
+          else{
+            gameReset();
+          }
+        }, 1000/framesPerSecond);
+    }
+
+    xmlhttp.onreadystatechange = function () {
+		if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+			let responseText = xmlhttp.responseText
+      let sensorValue = parseFloat(JSON.parse(responseText).sensorValue)
+      var mousePos = calcMousePos(sensorValue);
+      var temp = paddle1Y
+      paddle1Y = (paddle1Y + mousePos.y - (PADDLE_HEIGHT/2) + prev)/3;
+      prev = paddle1Y
+    }
+  }
+
+	// periodically grab data
+	let getData = () => {
+		xmlhttp.open("POST", SERVERADDRESS, true)
+		xmlhttp.setRequestHeader("Content-type", "application/json")
+		xmlhttp.send("")
+		setTimeout(() => {
+			getData()
+		}, 10)
+	}
+	getData()
+</script>
+
+</html>
