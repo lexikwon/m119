@@ -43,11 +43,7 @@
 		if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
 			let responseText = xmlhttp.responseText
 			let sensorValue = parseFloat(JSON.parse(responseText).sensorValue)
-			// use d3 to visualize sensor value as the web page background color
-			let colorValue = Math.max(0, Math.min((sensorValue + 1) * 0.5, 1))
-			console.log(colorValue)
-			let color = "rgba(0, 0, 0, " + colorValue + ")"
-			if(colorValue < 0.9) {
+			if(sensorValue > -0.9) {
 				d3.select("body").style("background-color", "rgb(255,105,97)")
 				d3.select("h1").style("opacity", "100")
 			} else {
