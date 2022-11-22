@@ -147,8 +147,8 @@
         else{
           boardReset()
         }
-        ballSpeedX = 10;
-        ballSpeedY = 4;
+        ballSpeedX = Math.floor(Math.random() * 10) + 1;;
+        ballSpeedY = Math.floor(Math.random() * 10) + 1;;
       }
     }
     else if((ballX - 5) <= (BUFFER + PADDLE_WIDTH)){
@@ -167,8 +167,8 @@
         else{
           boardReset()
         }
-        ballSpeedX = 10;
-        ballSpeedY = 4;
+        ballSpeedX = Math.floor(Math.random() * 10) + 1;;
+        ballSpeedY = Math.floor(Math.random() * 10) + 1;;
       }
     }
     if(ballY >= canvas.height) {
