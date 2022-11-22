@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+  <title>2 Player Pong Game</title>
+</head>
+
+<canvas id="gameCanvas" width="800" height="600"></canvas>
+
+<body>
+
+</body>
+
+<script src="https://d3js.org/d3.v7.min.js"></script>
+
+<script type="application/javascript">
+
+/*  EJS file for pong game
+
+  Adapted from "pong-js" by @crossphd on GitHub and m3 code
+
+  by Alexandra Kwon (UID: 205290932) for ECE M119
+
+  What: master.js
+  Where: https://github.com/crossphd/pong-js
+  Why: Helps implement the pong game basics for m4
+*/
+  var canvas;
+  var canvasContext;
+  var ballX = 50;
+  var ballY = 50;
+  var ballSpeedX = 10;
+  var ballSpeedY = 4;
+  var paddle1Y = 250;
+  var paddle1Speed = 0;
+  var paddle2Y = 250;
+  var paddle2Speed = 0;
+  const PADDLE_HEIGHT = 100;
+  const PADDLE_WIDTH = 10;
+  const BUFFER = 10;
+  var score1 = 0;
+  var score2 = 0;
+  var running = false;
+  var gameState = 0;
+  var winningScore = 5;
+  var winner = 0;
+
+  function calcMousePos(evt) {
+    var rect = canvas.getBoundingClientRect();
+    var root = document.documentElement;
+    //var mouseX = evt.clientX - rect.left - root.scrollLeft;
+    //var mouseY = evt.clientY - rect.top - root.scrollTop;
+
+    var mouseY = Math.max(0, Math.min((evt + 1) * 300, 600)); //- rect.top - root.scrollTop;
+
+    return {
+      //x:mouseX,
+      y:mouseY
+    };
+  }
+
+  function drawNet(){
+    for(var i = 0; i < canvas.height; i+=15){
+      colorRect(canvas.width/2-1, i, 2, 5,'gray');
+    }
+  }
+
+  function drawEverything(){
+    // black background
+    colorRect(0, 0, canvas.width, canvas.height, 'black');
+    // draws ball
+    colorCircle(ballX, ballY, 10, 'yellow');
+    // left paddle
+    colorRect(BUFFER, paddle1Y, PADDLE_WIDTH, PADDLE_HEIGHT, 'red');
+    // right paddle
+    colorRect(canvas.width - (PADDLE_WIDTH + BUFFER), paddle2Y, PADDLE_WIDTH, PADDLE_HEIGHT, 'blue');
+     drawScore();
+     drawNet();
+    
+  }
+
+  //When any key is pressed game state is reversed
+  document.onkeypress = function(e){gameState = !gameState};
+
+  function gameReset(){
+    gameState = 0;
+    ballX = canvas.width/2;
+    ballY = canvas.height/2;
+    if (Math.random()>0.5){
+        ballSpeedX = -ballSpeedX;
+    }
+    if (Math.random()<0.5){
+        ballSpeedY = -ballSpeedY;
+    }
+    // black background
+    colorRect(0, 0, canvas.width, canvas.height, 'black');
+    //Display "Press Enter to Start Pong Game"
+    canvasContext.fillStyle='white';
+    canvasContext.font="20px sans-serif";
+    if(winner==1){
+        var wintext = "RED WINS";
+        canvasContext.fillText(wintext, canvas.width/3, (canvas.height/2)-50);
+    }
+    else if(winner==2){
+        var wintext = "BLUE WINS";
+        canvasContext.fillText(wintext, canvas.width/3, (canvas.height/2)-50);
+    }
+    var text = "Press any key to start game";
+    canvasContext.fillText(text, canvas.width/3, canvas.height/2);
+    paddle1Speed = 0;
+    paddle1Y = 250;
+    score1 = 0;
+    score2 = 0;
+  }
+
+  function boardReset(){
+    ballX = canvas.width/2;
+    ballY = canvas.height/2;
+    if (Math.random()>0.5){
+        ballSpeedX = -ballSpeedX;
+    }
+    if (Math.random()<0.5){
+        ballSpeedY = -ballSpeedY;
+    }
+    paddle1Speed = 0;
+    paddle1Y = 250;
+    drawScore();
+  }
+
+  function moveEverything(){
+    ballX += ballSpeedX;
+    ballY += ballSpeedY;
+    if((ballX + 5) >= (canvas.width - BUFFER - PADDLE_WIDTH)) {
+      // if ball hits paddle, else reset
+      if(ballY > paddle2Y && ballY < (paddle2Y + PADDLE_HEIGHT)){
+        ballSpeedX = -ballSpeedX;
+        var deltaY = ballY - (paddle2Y+PADDLE_HEIGHT/2);
+        ballSpeedY = deltaY * 0.25;
+        ballSpeedX += .8;
+      }else{
+        score1 += 1;
+        if(score1 >= winningScore){
+          gameReset();
+          winner = 1;
+        }
+        else{
+          boardReset()
+        }
+        ballSpeedX = 10;
+        ballSpeedY = 4;
+      }
+    }
+    else if((ballX - 5) <= (BUFFER + PADDLE_WIDTH)){
+      // if ball hits paddle, else reset
+      if(ballY > paddle1Y && ballY < (paddle1Y + PADDLE_HEIGHT)){
+        ballSpeedX = -ballSpeedX;
+        var deltaY = ballY - (paddle1Y+PADDLE_HEIGHT/2);
+        ballSpeedY = deltaY * 0.25;
+        ballSpeedX += .8;
+      }else{
+        score2 += 1;
+        if(score2 >= winningScore){
+          gameReset();
+          winner = 2;
+        }
+        else{
+          boardReset()
+        }
+        ballSpeedX = 10;
+        ballSpeedY = 4;
+      }
+    }
+    if(ballY >= canvas.height) {
+      ballSpeedY = -ballSpeedY;
+    }
+    if(ballY <= 0){
+      ballSpeedY = -ballSpeedY;
+    }
+  }
+
+  function drawScore(){
+    canvasContext.lineWidth=1;
+    canvasContext.fillStyle='white';
+    // canvasContext.lineStyle="#ffff00";
+    canvasContext.font="20px sans-serif";
+    var score1text = "Red Score: " + score1.toString();
+    canvasContext.fillText(score1text, canvas.width - 750, 40);
+    var score2text = "Blue Score: " + score2.toString();
+    canvasContext.fillText(score2text, canvas.width - 200, 40);
+  }
+
+  function colorRect(leftX, topY, width, height, drawColor){
+    canvasContext.fillStyle = drawColor;
+    canvasContext.fillRect(leftX, topY, width, height)
+  }
+
+  function colorCircle(centerX, centerY, radius, color){
+    canvasContext.fillStyle = color;
+    canvasContext.beginPath();
+    canvasContext.arc(centerX, centerY, radius, 0, Math.PI*2, true);
+    canvasContext.fill();
+
+  }
+  
+
+
+
+    const SERVERADDRESS = "http://127.0.0.1:3000"
+    const SERVERADDRESS2 = "http://127.0.0.1:3010"
+	// use XML HTTP request to grab data from the server (central)
+  let xmlhttp = new XMLHttpRequest()
+  let xmlhttp2 = new XMLHttpRequest()
+
+  //Reset game to start
+  window.onload = () => {
+        canvas = document.getElementById('gameCanvas');
+        canvasContext = canvas.getContext('2d');
+        var framesPerSecond = 40;
+        setInterval(function(){
+          if (gameState){
+          moveEverything();
+          drawEverything();
+          }
+          else{
+            gameReset(0);
+          }
+        }, 1000/framesPerSecond);
+    }
+
+    xmlhttp.onreadystatechange = function () {
+		if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+			let responseText = xmlhttp.responseText
+            let sensorValue = parseFloat(JSON.parse(responseText).sensorValue)
+            let sensorValue2 = parseFloat(JSON.parse(responseText).sensorValue2)
+            console.log("SENSOR VALUE1: ",sensorValue)
+            console.log("SENSOR VALUE2: ",sensorValue2)
+
+            
+            if(Math.abs(sensorValue)>50){
+                paddle1Speed = paddle1Speed + sensorValue/250;
+            }
+            
+            if(paddle1Y>600-PADDLE_HEIGHT/2 && paddle1Speed>0){
+                paddle1Speed = 0;
+                paddle1Y = 600-PADDLE_HEIGHT/2
+            }
+
+            else if(paddle1Y<0-PADDLE_HEIGHT/2&& paddle1Speed<0){
+                paddle1Speed = 0;
+                paddle1Y = -PADDLE_HEIGHT/2;
+            }
+
+            if(Math.abs(sensorValue2)>50){
+                paddle2Speed = paddle2Speed + sensorValue2/250;
+            }
+            
+            if(paddle2Y>600-PADDLE_HEIGHT/2 && paddle2Speed>0){
+                paddle2Speed = 0;
+                paddle2Y = 600-PADDLE_HEIGHT/2
+            }
+
+            else if(paddle2Y<0-PADDLE_HEIGHT/2&& paddle2Speed<0){
+                paddle2Speed = 0;
+                paddle2Y = -PADDLE_HEIGHT/2;
+            }
+
+            
+            paddle1Y = (paddle1Y+paddle1Speed)
+            paddle2Y = (paddle2Y+paddle2Speed)
+        }
+    }
+
+    /*
+    xmlhttp2.onreadystatechange = function () {
+		if (xmlhttp2.readyState == 4 && xmlhttp2.status == 200) {
+			let responseText = xmlhttp2.responseText
+            let sensorValue = parseFloat(JSON.parse(responseText).sensorValue)
+
+            
+            if(Math.abs(sensorValue)>50){
+                paddle2Speed = paddle2Speed + sensorValue/250;
+            }
+            
+            if(paddle2Y>600-PADDLE_HEIGHT/2 && paddle2Speed>0){
+                paddle2Speed = 0;
+                paddle2Y = 600-PADDLE_HEIGHT/2
+            }
+
+            else if(paddle2Y<0-PADDLE_HEIGHT/2&& paddle2Speed<0){
+                paddle2Speed = 0;
+                paddle2Y = -PADDLE_HEIGHT/2;
+            }
+
+            
+            paddle2Y = (paddle2Y+paddle2Speed)
+        }
+    }
+    */
+
+	// periodically grab data
+	let getData = () => {
+		xmlhttp.open("POST", SERVERADDRESS, true)
+		xmlhttp.setRequestHeader("Content-type", "application/json")
+		xmlhttp.send("")
+		setTimeout(() => {
+			getData()
+		}, 10)
+    }
+    
+    /*
+    let getData2 = () => {
+		xmlhttp2.open("POST", SERVERADDRESS2, true)
+		xmlhttp2.setRequestHeader("Content-type", "application/json")
+		xmlhttp2.send("")
+		setTimeout(() => {
+			getData2()
+		}, 10)
+    }
+    */
+
+    getData()
+    //getData2()
+</script>
+
+</html>
