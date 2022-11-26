@@ -19,8 +19,9 @@
 	</span>
 <div id="main">
 	<h1>
+		<header></header>
 		<header>ALIGN</header>
-		<header2>posture sensor</header2>
+		<header></header>
 	</h1>
 
 <h2> Bad Posture </h2>
@@ -34,6 +35,7 @@
 	// use XML HTTP request to grab data from the server (central)
 	let xmlhttp = new XMLHttpRequest()
 	xmlhttp.onreadystatechange = function () {
+		d3.select("body").style("background-color", "rgb(223, 240, 254)")
 		if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
 			let responseText = xmlhttp.responseText
 			let sensorValue = parseFloat(JSON.parse(responseText).sensorValue)

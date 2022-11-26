@@ -114,10 +114,10 @@ html {
 			let responseText = xmlhttp.responseText
 			let sensorValue = parseFloat(JSON.parse(responseText).sensorValue)
 			if(sensorValue > -0.9) {
-				d3.select("body").style("background-color", "rgb(255,105,97)")
+				d3.select("card3").style("background-color", "red")
 				d3.select("h1").style("opacity", "100")
 			} else {
-				d3.select("body").style("background-color", "rgb(119,221,119)")
+				d3.select("card3").style("background-color", "green")
 				d3.select("h1").style("opacity", "0")
 			}
 		}

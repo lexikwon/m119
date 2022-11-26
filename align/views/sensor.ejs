@@ -5,6 +5,72 @@
 	<link href= "../public/assets/styles.css" rel="stylesheet" type="text/css" />
 </head>
 
+<style>
+
+	html {
+	  box-sizing: border-box;
+	}
+	
+	*, *:before, *:after {
+	  box-sizing: inherit;
+	}
+	
+	.row {
+		margin-left: 85px;
+	}
+	
+	.column {
+	  float: left;
+	  width: 50%;
+	  margin-bottom: 16px;
+	  padding: 0 8px;
+	}
+	
+	@media screen and (max-width: 650px) {
+	  .column {
+		width: 100%;
+		display: block;
+	  }
+	}
+	
+	.card {
+	  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+	  display: flex;
+	  justify-content: center;
+	  align-items: center;
+	  background-color: rgb(179, 217, 245);
+	  height: 450px;
+	}
+	.card2 {
+	  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+	  display: flex;
+	  justify-content: center;
+	  align-items: center;
+	  background-color: black;
+	  height: 450px;
+	  padding: 20px;
+	}
+	.card3 {
+	  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+	  display: flex;
+	  justify-content: center;
+	  align-items: center;
+	  background-color: rgb(179, 217, 245);
+	  height: 450px;
+	  padding: 20px;
+	}
+	.container {
+	  padding: 0 16px;
+	}
+	
+	.container::after, .row::after {
+	  content: "";
+	  clear: both;
+	  display: table;
+	}
+
+	
+	</style>
 <body>
 <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
 
@@ -19,7 +85,22 @@
 		<header>ALIGN</header>
 		<header2>the sensor</header2>
 	</h1>
-
+</div>
+<div class="row">
+    <div class="column">
+        <div class="card2">
+            <div class="container">
+				<h1 style="margin-bottom: 90px; font-size: 50px; font-weight: bold; color:rgb(179, 217, 245)">How good is your posture?</h1>
+				<h3 style="text-align: center; font-size: 40px; font-weight: bold; color:green;">Good</h2>
+				<h3 style="text-align: center; font-size: 40px; font-weight: bold; color:red;">Bad</h2>
+				<h4 style="text-align: center; font-size: 15px; font-weight: normal; color:rgb(179, 217, 245);">The color of the box to the right will indicate posture status</h4>
+			</div>
+        </div>
+    </div>
+    <div class="column">
+        <div class="card3">
+        </div>
+    </div>
 </div>
 </body>
 
@@ -35,10 +116,10 @@
 			let responseText = xmlhttp.responseText
 			let sensorValue = parseFloat(JSON.parse(responseText).sensorValue)
 			if(sensorValue > -0.9) {
-				d3.select("body").style("background-color", "rgb(255,105,97)")
+				d3.select("card3").style("background-color", "red")
 				d3.select("h1").style("opacity", "100")
 			} else {
-				d3.select("body").style("background-color", "rgb(119,221,119)")
+				d3.select("card3").style("background-color", "green")
 				d3.select("h1").style("opacity", "0")
 			}
 		}
