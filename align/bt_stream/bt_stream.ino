@@ -22,11 +22,14 @@
 #define BLE_UUID_GYROSCOPE_X "2104"
 #define BLE_UUID_GYROSCOPE_Y "2105"
 #define BLE_UUID_GYROSCOPE_Z "2106"
+#define BLE_UUID_SLOUCH "2107"
 
 #define BLE_DEVICE_NAME "Nano 33 IoT"
 #define BLE_LOCAL_NAME "Nano 33 IoT"
 
 BLEService accelerometerService(BLE_UUID_ACCELEROMETER_SERVICE);
+
+int value = 0;
 
 BLEFloatCharacteristic accelerometerCharacteristicX(BLE_UUID_ACCELEROMETER_X, BLERead | BLENotify);
 BLEFloatCharacteristic accelerometerCharacteristicY(BLE_UUID_ACCELEROMETER_Y, BLERead | BLENotify);
@@ -34,15 +37,18 @@ BLEFloatCharacteristic accelerometerCharacteristicZ(BLE_UUID_ACCELEROMETER_Z, BL
 BLEFloatCharacteristic gyroscopeCharacteristicX(BLE_UUID_GYROSCOPE_X, BLERead | BLENotify);
 BLEFloatCharacteristic gyroscopeCharacteristicY(BLE_UUID_GYROSCOPE_Y, BLERead | BLENotify);
 BLEFloatCharacteristic gyroscopeCharacteristicZ(BLE_UUID_GYROSCOPE_Z, BLERead | BLENotify);
+BLEIntCharacteristic slouchCharacteristic(BLE_UUID_SLOUCH, BLERead | BLEWrite);
 
 float ax, ay, az, gx, gy, gz;
+int motorPin = 2; //motor transistor is connected to pin 2
 
 void setup() {
   //pinMode(LED_BUILTIN, OUTPUT);
+  pinMode(motorPin, OUTPUT);
 
-  //Serial.begin(9600);
-  //while (!Serial)
-    //;
+  Serial.begin(9600);
+  while (!Serial)
+    ;
 
   // initialize IMU
   if (!IMU.begin()) {
@@ -76,6 +82,7 @@ void setup() {
   accelerometerService.addCharacteristic(gyroscopeCharacteristicX);
   accelerometerService.addCharacteristic(gyroscopeCharacteristicY);
   accelerometerService.addCharacteristic(gyroscopeCharacteristicZ);
+  accelerometerService.addCharacteristic(slouchCharacteristic);
 
   // add service
   BLE.addService(accelerometerService);
@@ -113,6 +120,18 @@ void loop() {
     gyroscopeCharacteristicX.writeValue(gx);
     gyroscopeCharacteristicY.writeValue(gy);
     gyroscopeCharacteristicZ.writeValue(gz);
+
+    //Buzz vibration motor if slouch is detected
+    if(slouchCharacteristic.written()){
+      value = slouchCharacteristic.value();
+      Serial.println(value);
+      if(value!=0){
+        digitalWrite(motorPin, HIGH); //vibrate
+      }
+      else{
+        digitalWrite(motorPin,LOW); //stop vibrating
+      }
+    }
 
   }
 
