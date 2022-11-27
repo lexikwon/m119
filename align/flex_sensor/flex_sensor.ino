@@ -14,12 +14,12 @@ voltage at A0 should decrease.
 Development environment specifics:
 Arduino 1.6.7
 ******************************************************************************/
-const int FLEX_PIN = A0; // Pin connected to voltage divider output
+const int FLEX_PIN = A1; // Pin connected to voltage divider output
 
 // Measure the voltage at 5V and the actual resistance of your
 // 47k resistor, and enter them below:
 const float VCC = 3.33; // Measured voltage of Ardunio 5V line
-const float R_DIV = 72600.0; // Measured resistance of 3.3k resistor
+const float R_DIV = 72600.0; // Measured resistance of 100k resistor
 
 // Upload the code, then try to adjust these values to more
 // accurately calculate bend degree.
