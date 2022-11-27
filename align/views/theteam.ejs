@@ -106,6 +106,7 @@ html {
 <script src="https://d3js.org/d3.v7.min.js"></script>
 
 <script type="application/javascript">
+  var slouch = 0
 	const SERVERADDRESS = "http://127.0.0.1:3000"
 	// use XML HTTP request to grab data from the server (central)
 	let xmlhttp = new XMLHttpRequest()
@@ -115,18 +116,23 @@ html {
 			let sensorValue = parseFloat(JSON.parse(responseText).sensorValue)
 			if(sensorValue > -0.9) {
 				d3.select("card3").style("background-color", "red")
-				d3.select("h1").style("opacity", "100")
+        d3.select("h1").style("opacity", "100")
+        slouch = 1
 			} else {
 				d3.select("card3").style("background-color", "green")
-				d3.select("h1").style("opacity", "0")
+        d3.select("h1").style("opacity", "0")
+        slouch = 0
 			}
 		}
 	}
 	// periodically grab data
 	let getData = () => {
+		var params = JSON.stringify({slouch: slouch});
 		xmlhttp.open("POST", SERVERADDRESS, true)
-		xmlhttp.setRequestHeader("Content-type", "application/json")
-		xmlhttp.send("")
+		xmlhttp.setRequestHeader("Content-Type","application/json")
+		//xmlhttp.setRequestHeader("Content-length", params.length);
+		xmlhttp.send(params)
+
 		setTimeout(() => {
 			getData()
 		}, 10)
