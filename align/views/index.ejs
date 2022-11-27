@@ -75,7 +75,7 @@
 		var params = JSON.stringify({slouch: slouch});
 		xmlhttp.open("POST", SERVERADDRESS, true)
 		xmlhttp.setRequestHeader("Content-Type","application/json")
-		//xmlhttp.setRequestHeader("Content-length", params.length);
+		xmlhttp.setRequestHeader("Content-length", params.length);
 		xmlhttp.send(params)
 
 		setTimeout(() => {
