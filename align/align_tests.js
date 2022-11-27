@@ -102,6 +102,18 @@ app.get('/', (req, res) => {
     res.render('index')
 })
 
+app.get('/about', (req, res) => {
+  res.render('about');
+});
+
+app.get('/sensor', (req, res) => {
+  res.render('sensor');
+});
+
+app.get('/theteam', (req, res) => {
+  res.render('theteam');
+});
+
 app.post('/', (req, res) => {
 
     res.writeHead(200, {
@@ -117,6 +129,8 @@ app.post('/', (req, res) => {
     }))
     slouchVal = req.body.slouch
 })
+
+app.use('/public', express.static('public'));
 
 app.listen(port, () => {
     //console.log(`Example app listening on port ${port}`)

@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+html {
+  box-sizing: border-box;
+}
+
+*, *:before, *:after {
+  box-sizing: inherit;
+}
+
+.row {
+    margin-left: 85px;
+}
+
+.column {
+  float: left;
+  width: 33.3%;
+  margin-bottom: 16px;
+  padding: 0 8px;
+}
+
+@media screen and (max-width: 650px) {
+  .column {
+    width: 100%;
+    display: block;
+  }
+}
+
+.card {
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+  text-align: center;
+  background-color: rgb(223, 240, 254);
+}
+
+.container {
+  padding: 0 16px;
+}
+
+.container::after, .row::after {
+  content: "";
+  clear: both;
+  display: table;
+}
+
+.title {
+  color: grey;
+}
+
+
+</style>
+	<link href= "../public/assets/styles.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+
+<div id="mySidebar" class="sidebar" onmouseover="toggleSidebar()" onmouseout="toggleSidebar()">
+    <a href="/about"><span><i class="material-icons">info</i><span class="icon-text">about</span></a><br>
+    <a href="/sensor"><i class="material-icons">accessibility_new</i><span class="icon-text"></span>sensor</a></span>
+    </a><br>
+    <a href="/theteam"><i class="material-icons">person</i><span class="icon-text"></span>the team</span></a><br>
+</div>	
+<div id="main">
+    <h1>
+        <header>ALIGN</header>
+        <header2>meet the team</header2>
+    </h1>
+</div>
+<div class="row">
+    <div class="column">
+        <div class="card">
+            <img src="../public/assets/lexi.jpg" alt="Lexi" style="width:100%">
+            <div class="container">
+            <team>Alexandra Kwon</team>
+            <p class="title">Electrical Engineering '23</p>
+            </div>
+        </div>
+    </div>
+    <div class="column">
+        <div class="card">
+            <img src="../public/assets/sofia.jpg" alt="Sophia" style="width:100%">
+            <div class="container">
+            <team>Sofia Gilardini</team>
+            <p class="title">Electrical Engineering '24</p>
+            </div>
+        </div>
+    </div>
+    <div class="column">
+        <div class="card">
+            <img src="../public/assets/shrea.jpg" alt="Shrea" style="width:100%">
+            <div class="container">
+            <team>Shrea Chari</team>
+            <p class="title">Computer Science '23</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+
+
+<script src="https://d3js.org/d3.v7.min.js"></script>
+
+<script type="application/javascript">
+	const SERVERADDRESS = "http://127.0.0.1:3000"
+	// use XML HTTP request to grab data from the server (central)
+	let xmlhttp = new XMLHttpRequest()
+	xmlhttp.onreadystatechange = function () {
+		if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+			let responseText = xmlhttp.responseText
+			let sensorValue = parseFloat(JSON.parse(responseText).sensorValue)
+			if(sensorValue > -0.9) {
+				d3.select("card3").style("background-color", "red")
+				d3.select("h1").style("opacity", "100")
+			} else {
+				d3.select("card3").style("background-color", "green")
+				d3.select("h1").style("opacity", "0")
+			}
+		}
+	}
+	// periodically grab data
+	let getData = () => {
+		xmlhttp.open("POST", SERVERADDRESS, true)
+		xmlhttp.setRequestHeader("Content-type", "application/json")
+		xmlhttp.send("")
+		setTimeout(() => {
+			getData()
+		}, 10)
+	}
+	getData()
+
+	var mini = true;
+
+	let toggleSidebar = () => {
+		if (mini) {
+			console.log("opening sidebar");
+			document.getElementById("mySidebar").style.width = "250px";
+			document.getElementById("main").style.marginLeft = "250px";
+			this.mini = false;
+		} else {
+			console.log("closing sidebar");
+			document.getElementById("mySidebar").style.width = "85px";
+			document.getElementById("main").style.marginLeft = "85px";
+			this.mini = true;
+		}
+	}
+</script>
+
+</html>

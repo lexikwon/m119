@@ -2,35 +2,30 @@
 <html>
 
 <head>
-	<style>
-		* {
-			box-sizing: border-box;
-		}
-		
-		body {
-			font-family: Arial, Helvetica, sans-serif;
-		}
-		
-		/* Style the header */
-		header {
-			background-color: rgb(0, 0, 0);
-			padding: 30px;
-			text-align: center;
-			font-size: 35px;
-			color: white;
-		}
-		h1 {
-			padding: 30px;
-			text-align: center;
-			font-size: 35px;
-			opacity: 0;
-		}
-	</style>
+	<link href= "../public/assets/styles.css" rel="stylesheet" type="text/css" />
 </head>
 
 <body>
-<header>Posture Sensor Demo</header>
-<h1> Bad Posture </h1>
+<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+
+<div id="mySidebar" class="sidebar" onmouseover="toggleSidebar()" onmouseout="toggleSidebar()">
+  <a href="/about"><span><i class="material-icons">info</i><span class="icon-text">about</span></a><br>
+  <a href="/sensor"><i class="material-icons">accessibility_new</i><span class="icon-text"></span>sensor</a></span>
+  </a><br>
+  <a href="/theteam"><i class="material-icons">person</i><span class="icon-text"></span>the team</span></a><br>
+</div>	
+<span class="material-symbols-outlined">
+	person
+	</span>
+<div id="main">
+	<h1>
+		<header></header>
+		<header>ALIGN</header>
+		<header></header>
+	</h1>
+
+<h2> Bad Posture </h2>
+</div>
 </body>
 
 <script src="https://d3js.org/d3.v7.min.js"></script>
@@ -42,6 +37,7 @@
 	let xmlhttp = new XMLHttpRequest()
 	let http = new XMLHttpRequest();
 	xmlhttp.onreadystatechange = function () {
+		d3.select("body").style("background-color", "rgb(223, 240, 254)")
 		if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
 			let responseText = xmlhttp.responseText
 			let sensorValue = parseFloat(JSON.parse(responseText).sensorValue)
@@ -72,6 +68,22 @@
 		}, 10)
 	}
 	getData()
+
+	var mini = true;
+
+	let toggleSidebar = () => {
+		if (mini) {
+			console.log("opening sidebar");
+			document.getElementById("mySidebar").style.width = "250px";
+			document.getElementById("main").style.marginLeft = "250px";
+			this.mini = false;
+		} else {
+			console.log("closing sidebar");
+			document.getElementById("mySidebar").style.width = "85px";
+			document.getElementById("main").style.marginLeft = "85px";
+			this.mini = true;
+		}
+	}
 </script>
 
 </html>
