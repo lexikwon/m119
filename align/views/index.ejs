@@ -36,17 +36,69 @@
 	// use XML HTTP request to grab data from the server (central)
 	let xmlhttp = new XMLHttpRequest()
 	let http = new XMLHttpRequest();
+
+	let BendDown = false 
+	let BendUp = false
+	let BDthresh = -50
+	let BUthresh = 50
+	let SlouchPolicy = true
+
+
 	xmlhttp.onreadystatechange = function () {
 		d3.select("body").style("background-color", "rgb(223, 240, 254)")
 		if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
 			let responseText = xmlhttp.responseText
-			let sensorValue = parseFloat(JSON.parse(responseText).sensorValue)
-			if(sensorValue > -0.9) {
-				d3.select("body").style("background-color", "rgb(255,105,97)")
-				slouch = 1;
-			} else {
-				d3.select("body").style("background-color", "rgb(119,221,119)")
-				slouch = 0;
+			let Ax = parseFloat(JSON.parse(responseText).sensorValue)
+			let Gy = parseFloat(JSON.parse(responseText).sensorValue5)
+
+			console.log("BendDown")
+			console.log(BendDown)
+			console.log("BendUp")
+			console.log(BendUp)
+
+			if (!BendDown && !BendUp) {
+				// you're bending down
+				if (Gy < BDthresh) {
+					BendDown = true
+				}
+				// you're bending up
+				else if (Gy > BUthresh) {
+					BendUp = true
+				}
+				// you are not bending
+				else {
+					SlouchPolicy = true
+				}
+			} 
+			else if (BendDown && !BendUp) {
+				// you've bent down and are bending up
+				if (Gy > BUthresh) {
+					BendUp = true
+				}
+			}
+			else if (!BendDown && BendUp) {
+				// you've bent up and are bending down
+				if (Gy < BDthresh) {
+					BendDown = true
+				}
+			}
+			
+			if (BendDown && BendUp && Ax < -0.9) {
+				BendDown = false
+				BendUp = false
+				SlouchPolicy = true
+			}
+			
+			if (SlouchPolicy) {
+				// run the policy
+				if(Ax > -0.9) {
+					d3.select("body").style("background-color", "rgb(255,105,97)")
+					slouch = 1;
+				} else {
+					d3.select("body").style("background-color", "rgb(119,221,119)")
+					slouch = 0;
+				}
+				SlouchPolicy = false
 			}
 		}
 	}
