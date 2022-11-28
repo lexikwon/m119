@@ -58,7 +58,7 @@ html {
 <body>
 <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
 
-<div id="mySidebar" class="sidebar" onmouseover="toggleSidebar()" onmouseout="toggleSidebar()">
+<div id="mySidebar" class="sidebar" onmouseover="openSidebar()" onmouseout="closeSidebar()">
     <a href="/about"><span><i class="material-icons">info</i><span class="icon-text">about</span></a><br>
     <a href="/sensor"><i class="material-icons">accessibility_new</i><span class="icon-text"></span>sensor</a></span>
     </a><br>
@@ -116,11 +116,9 @@ html {
 			let sensorValue = parseFloat(JSON.parse(responseText).sensorValue)
 			if(sensorValue > -0.9) {
 				d3.select("card3").style("background-color", "red")
-        d3.select("h1").style("opacity", "100")
         slouch = 1
 			} else {
 				d3.select("card3").style("background-color", "green")
-        d3.select("h1").style("opacity", "0")
         slouch = 0
 			}
 		}
@@ -139,21 +137,17 @@ html {
 	}
 	getData()
 
-	var mini = true;
-
-	let toggleSidebar = () => {
-		if (mini) {
-			console.log("opening sidebar");
-			document.getElementById("mySidebar").style.width = "250px";
-			document.getElementById("main").style.marginLeft = "250px";
-			this.mini = false;
-		} else {
-			console.log("closing sidebar");
-			document.getElementById("mySidebar").style.width = "85px";
-			document.getElementById("main").style.marginLeft = "85px";
-			this.mini = true;
-		}
+	let openSidebar = () => {
+		console.log("opening sidebar");
+		document.getElementById("mySidebar").style.width = "250px";
+		document.getElementById("main").style.marginLeft = "250px";
 	}
+
+  let closeSidebar = () => {
+    console.log("closing sidebar");
+		document.getElementById("mySidebar").style.width = "85px";
+		document.getElementById("main").style.marginLeft = "85px";
+  }
 </script>
 
 </html>
