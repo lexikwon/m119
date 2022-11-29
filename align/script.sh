@@ -1,2 +1,2 @@
 #!/bin/bash
-node align_tests.js >> test_data_$1.csv
+node align_tests.js >> flex_data_$1.csv

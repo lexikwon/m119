@@ -46,11 +46,11 @@
 	  display: flex;
 	  justify-content: center;
 	  align-items: center;
-	  background-color: black;
+	  background-color: #111;
 	  height: 450px;
 	  padding: 20px;
 	}
-	.card3 {
+	card3 {
 	  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
 	  display: flex;
 	  justify-content: center;
@@ -91,15 +91,16 @@
         <div class="card2">
             <div class="container">
 				<h1 style="margin-bottom: 90px; font-size: 50px; font-weight: bold; color:rgb(179, 217, 245)">How good is your posture?</h1>
-				<h3 style="text-align: center; font-size: 40px; font-weight: bold; color:green;">Good</h2>
-				<h3 style="text-align: center; font-size: 40px; font-weight: bold; color:red;">Bad</h2>
+				<h3 style="text-align: center; font-size: 30px; font-weight: bold; color:rgb(119,221,119);">Good</h3>
+				<h3 style="text-align: center; font-size: 30px; font-weight: bold; color:rgb(253,253,150);">Bending</h3>
+				<h3 style="text-align: center; font-size: 30px; font-weight: bold; color:rgb(255,105,97);">Bad</h3>
 				<h4 style="text-align: center; font-size: 15px; font-weight: normal; color:rgb(179, 217, 245);">The color of the box to the right will indicate posture status</h4>
 			</div>
         </div>
     </div>
     <div class="column">
-        <div class="card3">
-        </div>
+        <card3>
+		</card3>
     </div>
 </div>
 </body>
@@ -114,9 +115,11 @@
 	let xmlhttp = new XMLHttpRequest()
 	let BendDown = false 
 	let BendUp = false
-	let BDthresh = -30
-	let BUthresh = 30
+	let BDthresh = -50
+	let BUthresh = 50
+	var slouchThresh = -0.95;
 	let SlouchPolicy = true
+	var prevAx = -1.0;
 	xmlhttp.onreadystatechange = function () {
 
 
@@ -125,66 +128,85 @@
 			let Ax = parseFloat(JSON.parse(responseText).sensorValue)
 			let Gy = parseFloat(JSON.parse(responseText).sensorValue5)
 
-
-
 			if (!BendDown && !BendUp) {
 				// you're bending down
 				if (Gy < BDthresh) {
 					BendDown = true
+					slouch = 0
+					console.log("Bent down from nothing, Ax: "+Ax+" Gy: "+ Gy)
+					d3.select("card3").style("background-color", "rgb(253,253,150)")
 				}
+
+				
 				// you're bending up
 				else if (Gy > BUthresh) {
 					BendUp = true
+					slouch = 0
+					console.log("Bent up from nothing, Ax: "+Ax+" Gy: "+ Gy)
+					d3.select("card3").style("background-color", "rgb(253,253,150)")
 				}
+				
+
 				// you are not bending
 				else {
 					SlouchPolicy = true
+					console.log("No bend, Ax: "+Ax+" Gy: "+ Gy)
 				}
 			} 
 			else if (BendDown && !BendUp) {
 				// you've bent down and are bending up
+				slouch = 0
 				if (Gy > BUthresh) {
 					BendUp = true
+					console.log("Bent up after bending down, Ax: "+Ax+" Gy: "+ Gy)
+					d3.select("card3").style("background-color", "rgb(253,253,150)")
 				}
 			}
-			else if (!BendDown && BendUp) {
-				// you've bent up and are bending down
-				if (Gy < BDthresh) {
-					BendDown = true
-				}
-			}
+
 			
-			if (BendDown && BendUp && Ax < -0.9) {
+			else if (!BendDown && BendUp) {
+				slouch = 0
+				// you're still bending up
+				if (Gy < BUthresh) {
+					BendUp = false
+					console.log("Done bending up, Ax: "+Ax+" Gy: "+ Gy)
+					d3.select("card3").style("background-color", "rgb(253,253,150)")
+				}
+			}
+
+			if (BendDown && BendUp) {
 				BendDown = false
 				BendUp = false
-				SlouchPolicy = true
+				//SlouchPolicy = true
+				console.log("Bent resolved, going into normal logic, Ax: "+Ax+" Gy: "+ Gy)
 			}
 			
-			if (SlouchPolicy) {
+			if (SlouchPolicy && !BendDown && !BendUp) {
 				// run the policy
-				if(Ax > -0.9) {
-					d3.select("body").style("background-color", "rgb(255,105,97)")
+				//Ensure we are in a valid range compared to the previous reading
+				if(Ax > slouchThresh) {
+					d3.select("card3").style("background-color", "rgb(255,105,97)")
 					slouch = 1;
 				} else {
-					d3.select("body").style("background-color", "rgb(119,221,119)")
+					d3.select("card3").style("background-color", "rgb(119,221,119)")
 					slouch = 0;
 				}
 				SlouchPolicy = false
 			}
 
-			// if (SlouchPolicy) {
-			// 	// run the policy
-			// 	if(Ax > -0.9) {
-			// 		d3.select("card3").style("background-color", "red")
-			// 		slouch = 1
-			// 	} else {
-			// 		d3.select("card3").style("background-color", "green")
-			// 		slouch = 0
-			// 	}
-			// 	SlouchPolicy = false
+			/*
+			//If at any point Ax<-0.9 we should not be slouching
+			if(Ax<slouchThresh && slouch == 1){
+				d3.select("card3").style("background-color", "rgb(119,221,119)")
+				slouch = 0;
+				console.log("Something ain't right, Ax: "+Ax+" Gy: "+ Gy)
+			}
+			*/
+
+
 			}
 		}
-	}
+	
 
 	// periodically grab data
 	let getData = () => {

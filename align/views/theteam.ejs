@@ -106,23 +106,105 @@ html {
 <script src="https://d3js.org/d3.v7.min.js"></script>
 
 <script type="application/javascript">
-  var slouch = 0
+	var slouch = 0
 	const SERVERADDRESS = "http://127.0.0.1:3000"
 	// use XML HTTP request to grab data from the server (central)
 	let xmlhttp = new XMLHttpRequest()
+	let BendDown = false 
+	let BendUp = false
+	let BDthresh = -50
+	let BUthresh = 50
+	var slouchThresh = -0.95;
+	let SlouchPolicy = true
+	var prevAx = -1.0;
 	xmlhttp.onreadystatechange = function () {
+
+
 		if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
 			let responseText = xmlhttp.responseText
-			let sensorValue = parseFloat(JSON.parse(responseText).sensorValue)
-			if(sensorValue > -0.9) {
-				d3.select("card3").style("background-color", "red")
-        slouch = 1
-			} else {
-				d3.select("card3").style("background-color", "green")
-        slouch = 0
+			let Ax = parseFloat(JSON.parse(responseText).sensorValue)
+			let Gy = parseFloat(JSON.parse(responseText).sensorValue5)
+
+			if (!BendDown && !BendUp) {
+				// you're bending down
+				if (Gy < BDthresh) {
+					BendDown = true
+					slouch = 0
+					console.log("Bent down from nothing, Ax: "+Ax+" Gy: "+ Gy)
+					d3.select("card3").style("background-color", "rgb(253,253,150)")
+				}
+
+				
+				// you're bending up
+				else if (Gy > BUthresh) {
+					BendUp = true
+					slouch = 0
+					console.log("Bent up from nothing, Ax: "+Ax+" Gy: "+ Gy)
+					d3.select("card3").style("background-color", "rgb(253,253,150)")
+				}
+				
+
+				// you are not bending
+				else {
+					SlouchPolicy = true
+					console.log("No bend, Ax: "+Ax+" Gy: "+ Gy)
+				}
+			} 
+			else if (BendDown && !BendUp) {
+				// you've bent down and are bending up
+				slouch = 0
+				if (Gy > BUthresh) {
+					BendUp = true
+					console.log("Bent up after bending down, Ax: "+Ax+" Gy: "+ Gy)
+					d3.select("card3").style("background-color", "rgb(253,253,150)")
+				}
+			}
+
+			
+			else if (!BendDown && BendUp) {
+				slouch = 0
+				// you're still bending up
+				if (Gy < BUthresh) {
+					BendUp = false
+					console.log("Done bending up, Ax: "+Ax+" Gy: "+ Gy)
+					d3.select("card3").style("background-color", "rgb(253,253,150)")
+				}
+			}
+
+			if (BendDown && BendUp) {
+				BendDown = false
+				BendUp = false
+				//SlouchPolicy = true
+				console.log("Bent resolved, going into normal logic, Ax: "+Ax+" Gy: "+ Gy)
+			}
+			
+			if (SlouchPolicy && !BendDown && !BendUp) {
+				// run the policy
+				//Ensure we are in a valid range compared to the previous reading
+				if(Ax > slouchThresh) {
+					d3.select("card3").style("background-color", "rgb(255,105,97)")
+					slouch = 1;
+				} else {
+					d3.select("card3").style("background-color", "rgb(119,221,119)")
+					slouch = 0;
+				}
+				SlouchPolicy = false
+			}
+
+			/*
+			//If at any point Ax<-0.9 we should not be slouching
+			if(Ax<slouchThresh && slouch == 1){
+				d3.select("card3").style("background-color", "rgb(119,221,119)")
+				slouch = 0;
+				console.log("Something ain't right, Ax: "+Ax+" Gy: "+ Gy)
+			}
+			*/
+
+
 			}
 		}
-	}
+	
+
 	// periodically grab data
 	let getData = () => {
 		var params = JSON.stringify({slouch: slouch});
